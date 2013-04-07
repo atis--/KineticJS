@@ -272,18 +272,41 @@
             for(n = end; n >= 0; n--) {
                 layer = layers[n];
                 if(layer.isVisible() && layer.isListening()) {
-                    p = layer.hitCanvas.context.getImageData(Math.round(pos.x), Math.round(pos.y), 1, 1).data;
-                    // this indicates that a hit pixel may have been found
-                    if(p[3] === 255) {
-                        colorKey = Kinetic.Type._rgbToHex(p[0], p[1], p[2]);
-                        shape = Kinetic.Global.shapes[colorKey];
-                        return {
-                            shape: shape,
-                            pixel: p
-                        };
+                    // Also look at neighboring pixels to work around the
+                    // destructive effects of anti-aliasing within hit-canvas.
+                    var base = {x: Math.round(pos.x), y: Math.round(pos.y)};
+                    var nearby = [
+                        base,
+                        {x: base.x - 1, y: base.y - 1},
+                        {x: base.x - 1, y: base.y    },
+                        {x: base.x - 1, y: base.y + 1},
+                        {x: base.x    , y: base.y - 1},
+                        {x: base.x    , y: base.y + 1},
+                        {x: base.x + 1, y: base.y - 1},
+                        {x: base.x + 1, y: base.y    },
+                        {x: base.x + 1, y: base.y + 1}
+                    ];
+                    var ctx = layer.hitCanvas.context;
+                    for (var i = 0; i < nearby.length; i++) {
+                        p = nearby[i];
+                        p = ctx.getImageData(p.x, p.y, 1, 1).data;
+
+                        // full opacity indicates that a hit pixel may have been found
+                        if (p[3] === 255) {
+                            colorKey = Kinetic.Type._rgbToHex(p[0], p[1], p[2]);
+                            shape = Kinetic.Global.shapes[colorKey];
+                            if (shape) {
+                                return {
+                                    shape: shape,
+                                    pixel: p
+                                };
+                            }
+                        }
                     }
+
                     // if no shape mapped to that pixel, return pixel array
-                    else if(p[0] > 0 || p[1] > 0 || p[2] > 0 || p[3] > 0) {
+                    p = ctx.getImageData(base.x, base.y, 1, 1).data;
+                    if (p[0] > 0 || p[1] > 0 || p[2] > 0 || p[3] > 0) {
                         return {
                             pixel: p
                         };
