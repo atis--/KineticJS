@@ -269,7 +269,7 @@
             var layers = this.getChildren(),
                 len = layers.length,
                 end = len - 1,
-                n, layer, p, colorKey, shape;
+                n, layer, p, colorKey, shape, i;
 
             /*
              * traverse through layers from top to bottom and look
@@ -280,41 +280,27 @@
                 if(layer.isVisible() && layer.isListening()) {
                     // Also look at neighboring pixels to work around the
                     // destructive effects of anti-aliasing within hit-canvas.
-                    var base = {x: Math.round(pos.x), y: Math.round(pos.y)};
-                    var nearby = [
-                        base,
-                        {x: base.x - 1, y: base.y - 1},
-                        {x: base.x - 1, y: base.y    },
-                        {x: base.x - 1, y: base.y + 1},
-                        {x: base.x    , y: base.y - 1},
-                        {x: base.x    , y: base.y + 1},
-                        {x: base.x + 1, y: base.y - 1},
-                        {x: base.x + 1, y: base.y    },
-                        {x: base.x + 1, y: base.y + 1}
-                    ];
-                    var ctx = layer.hitCanvas.context;
-                    for (var i = 0; i < nearby.length; i++) {
-                        p = nearby[i];
-                        p = ctx.getImageData(p.x, p.y, 1, 1).data;
-
+                    p = {x: Math.round(pos.x), y: Math.round(pos.y)};
+                    p = layer.hitCanvas.context.getImageData(p.x - 1, p.y - 1, 3, 3).data;
+                    for (i = 0; i < 4*9; i+=4) {
                         // full opacity indicates that a hit pixel may have been found
-                        if (p[3] === 255) {
-                            colorKey = Kinetic.Type._rgbToHex(p[0], p[1], p[2]);
+                        if (p[i+3] === 255) {
+                            colorKey = Kinetic.Type._rgbToHex(p[i], p[i+1], p[i+2]);
                             shape = Kinetic.Global.shapes[colorKey];
                             if (shape) {
                                 return {
                                     shape: shape,
-                                    pixel: p
+                                    pixel: [p[i], p[i+1], p[i+2], p[i+3]]
                                 };
                             }
                         }
                     }
 
                     // if no shape mapped to that pixel, return pixel array
-                    p = ctx.getImageData(base.x, base.y, 1, 1).data;
-                    if (p[0] > 0 || p[1] > 0 || p[2] > 0 || p[3] > 0) {
+                    i = 4*4;
+                    if (p[i] > 0 || p[i+1] > 0 || p[i+2] > 0 || p[i+3] > 0) {
                         return {
-                            pixel: p
+                            pixel: [p[i], p[i+1], p[i+2], p[i+3]]
                         };
                     }
                 }
