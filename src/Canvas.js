@@ -2,12 +2,19 @@
     // calculate pixel ratio
     var canvas = document.createElement('canvas'), 
         context = canvas.getContext('2d'), 
-        devicePixelRatio = window.devicePixelRatio || 1, backingStoreRatio = context.webkitBackingStorePixelRatio || context.mozBackingStorePixelRatio || context.msBackingStorePixelRatio || context.oBackingStorePixelRatio || context.backingStorePixelRatio || 1, 
+        devicePixelRatio = window.devicePixelRatio || 1, 
+        backingStoreRatio = context.webkitBackingStorePixelRatio 
+            || context.mozBackingStorePixelRatio 
+            || context.msBackingStorePixelRatio 
+            || context.oBackingStorePixelRatio 
+            || context.backingStorePixelRatio || 1, 
         _pixelRatio = devicePixelRatio / backingStoreRatio;
         
     /**
      * Canvas Renderer constructor
      * @constructor
+     * @abstract
+     * @memberof Kinetic
      * @param {Number} width
      * @param {Number} height
      */
@@ -20,89 +27,76 @@
             var config = config || {},
                 width = config.width || 0,
                 height = config.height || 0,
-                pixelRatio = config.pixelRatio || _pixelRatio;
-                
+                pixelRatio = config.pixelRatio || _pixelRatio,
+                contextType = config.contextType || '2d'; 
+
             this.pixelRatio = pixelRatio;
-            this.width = width;
-            this.height = height;
             this.element = document.createElement('canvas');
             this.element.style.padding = 0;
             this.element.style.margin = 0;
             this.element.style.border = 0;
             this.element.style.background = 'transparent';
-            this.context = this.element.getContext('2d');
+            this.context = this.element.getContext(contextType);
             this.setSize(width, height);   
-        },
-        /**
-         * clear canvas
-         * @name clear
-         * @methodOf Kinetic.Canvas.prototype
-         */
-        clear: function() {
-            var context = this.getContext();
-            var el = this.getElement();
-            context.clearRect(0, 0, el.width, el.height);
-        },
+        },        
         /**
          * get canvas element
-         * @name getElement
-         * @methodOf Kinetic.Canvas.prototype
+         * @method
+         * @memberof Kinetic.Canvas.prototype
          */
         getElement: function() {
             return this.element;
         },
         /**
          * get canvas context
-         * @name getContext
-         * @methodOf Kinetic.Canvas.prototype
+         * @method
+         * @memberof Kinetic.Canvas.prototype
          */
         getContext: function() {
             return this.context;
         },
         /**
          * set width
-         * @name setWidth
-         * @methodOf Kinetic.Canvas.prototype
+         * @method
+         * @memberof Kinetic.Canvas.prototype
          * @param {Number} width
          */
         setWidth: function(width) {
-            this.width = width;
             // take into account pixel ratio
-            this.element.width = width * this.pixelRatio;
+            this.width = this.element.width = width * this.pixelRatio;
             this.element.style.width = width + 'px';
         },
         /**
          * set height
-         * @name setHeight
-         * @methodOf Kinetic.Canvas.prototype
+         * @method
+         * @memberof Kinetic.Canvas.prototype
          * @param {Number} height
          */
         setHeight: function(height) {
-            this.height = height;
             // take into account pixel ratio
-            this.element.height = height * this.pixelRatio;
+            this.height = this.element.height = height * this.pixelRatio;
             this.element.style.height = height + 'px';
         },
         /**
          * get width
-         * @name getWidth
-         * @methodOf Kinetic.Canvas.prototype
+         * @method
+         * @memberof Kinetic.Canvas.prototype
          */
         getWidth: function() {
             return this.width;
         },
         /**
          * get height
-         * @name getHeight
-         * @methodOf Kinetic.Canvas.prototype
+         * @method
+         * @memberof Kinetic.Canvas.prototype
          */
         getHeight: function() {
             return this.height;
         },
         /**
          * set size
-         * @name setSize
-         * @methodOf Kinetic.Canvas.prototype
+         * @method
+         * @memberof Kinetic.Canvas.prototype
          * @param {Number} width
          * @param {Number} height
          */
@@ -111,9 +105,19 @@
             this.setHeight(height);
         },
         /**
+         * clear canvas
+         * @method
+         * @memberof Kinetic.Canvas.prototype
+         */
+        clear: function() {
+            var context = this.getContext();
+            var el = this.getElement();
+            context.clearRect(0, 0, this.getWidth(), this.getHeight());
+        },
+        /**
          * to data url
-         * @name toDataURL
-         * @methodOf Kinetic.Canvas.prototype
+         * @method
+         * @memberof Kinetic.Canvas.prototype
          * @param {String} mimeType
          * @param {Number} quality between 0 and 1 for jpg mime types
          */
@@ -128,15 +132,15 @@
                     return this.element.toDataURL();
                 }
                 catch(e) {
-                    Kinetic.Global.warn('Unable to get data URL. ' + e.message)
+                    Kinetic.Util.warn('Unable to get data URL. ' + e.message)
                     return '';
                 }
             }
         },
         /**
          * fill shape
-         * @name fill
-         * @methodOf Kinetic.Canvas.prototype
+         * @method
+         * @memberof Kinetic.Canvas.prototype
          * @param {Kinetic.Shape} shape
          */
         fill: function(shape) {
@@ -146,8 +150,8 @@
         },
         /**
          * stroke shape
-         * @name stroke
-         * @methodOf Kinetic.Canvas.prototype
+         * @method
+         * @memberof Kinetic.Canvas.prototype
          * @param {Kinetic.Shape} shape
          */
         stroke: function(shape) {
@@ -159,8 +163,8 @@
          * fill, stroke, and apply shadows
          *  will only be applied to either the fill or stroke.&nbsp; Fill
          *  is given priority over stroke.
-         * @name fillStroke
-         * @methodOf Kinetic.Canvas.prototype
+         * @method
+         * @memberof Kinetic.Canvas.prototype
          * @param {Kinetic.Shape} shape
          */
         fillStroke: function(shape) {
@@ -175,8 +179,8 @@
         },
         /**
          * apply shadow
-         * @name applyShadow
-         * @methodOf Kinetic.Canvas.prototype
+         * @method
+         * @memberof Kinetic.Canvas.prototype
          * @param {Kinetic.Shape} shape
          * @param {Function} drawFunc
          */
@@ -207,9 +211,12 @@
             }
         },
         _applyAncestorTransforms: function(node) {
-            var context = this.context;
+            var context = this.context,
+                t, m;
+
             node._eachAncestorReverse(function(no) {
-                var t = no.getTransform(), m = t.getMatrix();
+                t = no.getTransform(true); 
+                m = t.getMatrix();
                 context.transform(m[0], m[1], m[2], m[3], m[4], m[5]);
             }, true);
         },
@@ -224,8 +231,8 @@
         }
     };
 
-    Kinetic.SceneCanvas = function(width, height, pixelRatio) {
-        Kinetic.Canvas.call(this, width, height, pixelRatio);
+    Kinetic.SceneCanvas = function(config) {
+        Kinetic.Canvas.call(this, config);
     };
 
     Kinetic.SceneCanvas.prototype = {
@@ -245,7 +252,14 @@
             shape._fillFunc(context);
         },
         _fillPattern: function(shape) {
-            var context = this.context, fillPatternImage = shape.getFillPatternImage(), fillPatternX = shape.getFillPatternX(), fillPatternY = shape.getFillPatternY(), fillPatternScale = shape.getFillPatternScale(), fillPatternRotation = shape.getFillPatternRotation(), fillPatternOffset = shape.getFillPatternOffset(), fillPatternRepeat = shape.getFillPatternRepeat();
+            var context = this.context, 
+                fillPatternImage = shape.getFillPatternImage(), 
+                fillPatternX = shape.getFillPatternX(), 
+                fillPatternY = shape.getFillPatternY(), 
+                fillPatternScale = shape.getFillPatternScale(), 
+                fillPatternRotation = shape.getFillPatternRotation(), 
+                fillPatternOffset = shape.getFillPatternOffset(), 
+                fillPatternRepeat = shape.getFillPatternRepeat();
 
             if(fillPatternX || fillPatternY) {
                 context.translate(fillPatternX || 0, fillPatternY || 0);
@@ -264,17 +278,29 @@
             context.fill();
         },
         _fillLinearGradient: function(shape) {
-            var context = this.context, start = shape.getFillLinearGradientStartPoint(), end = shape.getFillLinearGradientEndPoint(), colorStops = shape.getFillLinearGradientColorStops(), grd = context.createLinearGradient(start.x, start.y, end.x, end.y);
+            var context = this.context, 
+                start = shape.getFillLinearGradientStartPoint(), 
+                end = shape.getFillLinearGradientEndPoint(), 
+                colorStops = shape.getFillLinearGradientColorStops(), 
+                grd = context.createLinearGradient(start.x, start.y, end.x, end.y);
 
-            // build color stops
-            for(var n = 0; n < colorStops.length; n += 2) {
-                grd.addColorStop(colorStops[n], colorStops[n + 1]);
+            if (colorStops) {
+                // build color stops
+                for(var n = 0; n < colorStops.length; n += 2) {
+                    grd.addColorStop(colorStops[n], colorStops[n + 1]);
+                }
+                context.fillStyle = grd;
+                context.fill();  
             }
-            context.fillStyle = grd;
-            context.fill();
         },
         _fillRadialGradient: function(shape) {
-            var context = this.context, start = shape.getFillRadialGradientStartPoint(), end = shape.getFillRadialGradientEndPoint(), startRadius = shape.getFillRadialGradientStartRadius(), endRadius = shape.getFillRadialGradientEndRadius(), colorStops = shape.getFillRadialGradientColorStops(), grd = context.createRadialGradient(start.x, start.y, startRadius, end.x, end.y, endRadius);
+            var context = this.context, 
+            start = shape.getFillRadialGradientStartPoint(), 
+            end = shape.getFillRadialGradientEndPoint(), 
+            startRadius = shape.getFillRadialGradientStartRadius(), 
+            endRadius = shape.getFillRadialGradientEndRadius(), 
+            colorStops = shape.getFillRadialGradientColorStops(), 
+            grd = context.createRadialGradient(start.x, start.y, startRadius, end.x, end.y, endRadius);
 
             // build color stops
             for(var n = 0; n < colorStops.length; n += 2) {
@@ -284,7 +310,12 @@
             context.fill();
         },
         _fill: function(shape, skipShadow) {
-            var context = this.context, fill = shape.getFill(), fillPatternImage = shape.getFillPatternImage(), fillLinearGradientStartPoint = shape.getFillLinearGradientStartPoint(), fillRadialGradientStartPoint = shape.getFillRadialGradientStartPoint(), fillPriority = shape.getFillPriority();
+            var context = this.context, 
+                hasColor = shape.getFill(), 
+                hasPattern = shape.getFillPatternImage(), 
+                hasLinearGradient = shape.getFillLinearGradientColorStops(), 
+                hasRadialGradient = shape.getFillRadialGradientColorStops(), 
+                fillPriority = shape.getFillPriority();
 
             context.save();
 
@@ -293,29 +324,29 @@
             }
 
             // priority fills
-            if(fill && fillPriority === 'color') {
+            if(hasColor && fillPriority === 'color') {
                 this._fillColor(shape);
             }
-            else if(fillPatternImage && fillPriority === 'pattern') {
+            else if(hasPattern && fillPriority === 'pattern') {
                 this._fillPattern(shape);
             }
-            else if(fillLinearGradientStartPoint && fillPriority === 'linear-gradient') {
+            else if(hasLinearGradient && fillPriority === 'linear-gradient') {
                 this._fillLinearGradient(shape);
             }
-            else if(fillRadialGradientStartPoint && fillPriority === 'radial-gradient') {
+            else if(hasRadialGradient && fillPriority === 'radial-gradient') {
                 this._fillRadialGradient(shape);
             }
             // now just try and fill with whatever is available
-            else if(fill) {
+            else if(hasColor) {
                 this._fillColor(shape);
             }
-            else if(fillPatternImage) {
+            else if(hasPattern) {
                 this._fillPattern(shape);
             }
-            else if(fillLinearGradientStartPoint) {
+            else if(hasLinearGradient) {
                 this._fillLinearGradient(shape);
             }
-            else if(fillRadialGradientStartPoint) {
+            else if(hasRadialGradient) {
                 this._fillRadialGradient(shape);
             }
             context.restore();
@@ -325,7 +356,11 @@
             }
         },
         _stroke: function(shape, skipShadow) {
-            var context = this.context, stroke = shape.getStroke(), strokeWidth = shape.getStrokeWidth(), dashArray = shape.getDashArray();
+            var context = this.context, 
+                stroke = shape.getStroke(), 
+                strokeWidth = shape.getStrokeWidth(), 
+                dashArray = shape.getDashArray();
+
             if(stroke || strokeWidth) {
                 context.save();
                 if (!shape.getStrokeScaleEnabled()) {
@@ -379,31 +414,35 @@
             }
         }
     };
-    Kinetic.Global.extend(Kinetic.SceneCanvas, Kinetic.Canvas);
+    Kinetic.Util.extend(Kinetic.SceneCanvas, Kinetic.Canvas);
 
-    Kinetic.HitCanvas = function(width, height, pixelRatio) {
-        Kinetic.Canvas.call(this, width, height, pixelRatio);
+    Kinetic.HitCanvas = function(config) {
+        Kinetic.Canvas.call(this, config);
     };
 
     Kinetic.HitCanvas.prototype = {
         _fill: function(shape) {
             var context = this.context;
             context.save();
-            context.fillStyle = '#' + shape.colorKey;
+            context.fillStyle = shape.colorKey;
             shape._fillFuncHit(context);
             context.restore();
         },
         _stroke: function(shape) {
-            var context = this.context, stroke = shape.getStroke(), strokeWidth = shape.getStrokeWidth();
+            var context = this.context, 
+                stroke = shape.getStroke(), 
+                strokeWidth = shape.getStrokeWidth();
+
             if(stroke || strokeWidth) {
                 this._applyLineCap(shape);
                 context.save();
                 context.lineWidth = strokeWidth || 2;
-                context.strokeStyle = '#' + shape.colorKey;
+                context.strokeStyle = shape.colorKey;
                 shape._strokeFuncHit(context);
                 context.restore();
             }
         }
     };
-    Kinetic.Global.extend(Kinetic.HitCanvas, Kinetic.Canvas);
+    Kinetic.Util.extend(Kinetic.HitCanvas, Kinetic.Canvas);
+
 })();

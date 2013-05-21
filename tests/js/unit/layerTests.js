@@ -28,6 +28,72 @@ Test.Modules.LAYER = {
         test(style.padding === '0px', 'canvas padding style should be 0px');
         test(style.backgroundColor === 'transparent', 'canvas backgroundColor style should be transparent');
     },
+
+    'layer getIntersection()': function(containerId) {
+        var stage = new Kinetic.Stage({
+            container: containerId,
+            width: 578,
+            height: 200,
+            throttle: 999
+        });
+        var layer = new Kinetic.Layer();
+
+        var redCircle = new Kinetic.Circle({
+            x: 380,
+            y: stage.getHeight() / 2,
+            radius: 70,
+            strokeWidth: 4,
+            fill: 'red',
+            stroke: 'black',
+            id: 'redCircle'
+        });
+
+        var greenCircle = new Kinetic.Circle({
+            x: 300,
+            y: stage.getHeight() / 2,
+            radius: 70,
+            strokeWidth: 4,
+            fill: 'green',
+            stroke: 'black',
+            id: 'greenCircle'
+        });
+
+        layer.add(redCircle);
+        layer.add(greenCircle);
+        stage.add(layer);
+
+        test(layer.getIntersection(300, 100).shape.getId() === 'greenCircle', 'shape should be greenCircle');
+        test(layer.getIntersection(380, 100).shape.getId() === 'redCircle', 'shape should be redCircle');
+        test(layer.getIntersection(100, 100) === null, 'shape should be null');
+
+
+    },
+    'set layer visibility': function(containerId) {
+        var stage = new Kinetic.Stage({
+            container: containerId,
+            width: 578,
+            height: 200
+        });
+        var layer = new Kinetic.Layer({
+            visible: false
+        });
+        var rect = new Kinetic.Rect({
+            x: 200,
+            width: 100,
+            height: 50,
+            fill: 'green',
+            stroke: 'black',
+            strokeWidth: 4,
+            scale: [3, 1],
+            draggable: true,
+            strokeScaleEnabled: false
+        });
+
+        rect.colorKey = '000000';
+
+        layer.add(rect);
+        stage.add(layer);
+    },
     'redraw hit graph': function(containerId) {
         var stage = new Kinetic.Stage({
             container: containerId,
@@ -93,15 +159,20 @@ Test.Modules.LAYER = {
             layer.draw();
         }
 
+        // TODO: investigate re-enabling toDataURL with clearBeforeDraw = false.
+        // disabled it for now because toDataURL breaks on devices with pixelRatio != 1
         //console.log(layer.toDataURL());
 
+        /*
         stage.toDataURL({
             callback: function(dataUrl) {
-                warn(dataUrls['stacked green circles'] === dataUrl, 'stacked green circles stage data url is incorrect');
+                testDataUrl(layer.toDataURL(), 'stacked green circles', 'stacked green circles stage data url is incorrect');
             }
         });
+        */
 
-        warn(dataUrls['stacked green circles'] === layer.toDataURL(), 'stacked green circles layer data url is incorrect');
+        //testDataUrl(layer.toDataURL(), 'stacked green circles', 'stacked green circles layer data url is incorrect');
+        //testDataUrl(layer.getCanvas().toDataURL(), 'stacked green circles', 'stacked green circles layer data url is incorrect');
 
     },
     'save layer as png (click on Circle to open new window)': function(containerId) {

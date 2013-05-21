@@ -77,7 +77,46 @@ Test.Modules.STAGE = {
 
         test(stage.getContent().className === 'kineticjs-content', 'stage DOM class name is wrong');
     },
-    'test getIntersections': function(containerId) {
+    'stage getAllIntersections()': function(containerId) {
+        var stage = new Kinetic.Stage({
+            container: containerId,
+            width: 578,
+            height: 200,
+            throttle: 999
+        });
+        var layer = new Kinetic.Layer();
+
+        var redCircle = new Kinetic.Circle({
+            x: 380,
+            y: stage.getHeight() / 2,
+            radius: 70,
+            strokeWidth: 4,
+            fill: 'red',
+            stroke: 'black',
+            id: 'redCircle'
+        });
+
+        var greenCircle = new Kinetic.Circle({
+            x: 300,
+            y: stage.getHeight() / 2,
+            radius: 70,
+            strokeWidth: 4,
+            fill: 'green',
+            stroke: 'black',
+            id: 'greenCircle'
+        });
+
+        layer.add(redCircle);
+        layer.add(greenCircle);
+        stage.add(layer);
+
+        test(stage.getIntersection(300, 100).shape.getId() === 'greenCircle', 'shape should be greenCircle');
+        test(stage.getIntersection(380, 100).shape.getId() === 'redCircle', 'shape should be redCircle');
+        test(stage.getIntersection(100, 100) === null, 'shape should be null');
+
+
+    },
+    'test getAllIntersections': function(containerId) {
         var stage = new Kinetic.Stage({
             container: containerId,
             width: 578,
@@ -111,50 +150,50 @@ Test.Modules.STAGE = {
         stage.add(layer);
 
         // test individual shapes
-        test(stage.getIntersections(266, 114).length === 1, '17) getIntersections should return one shape');
-        test(stage.getIntersections(266, 114)[0].getId() === 'greenCircle', '19) first intersection should be greenCircle');
+        test(stage.getAllIntersections(266, 114).length === 1, '17) getAllIntersections should return one shape');
+        test(stage.getAllIntersections(266, 114)[0].getId() === 'greenCircle', '19) first intersection should be greenCircle');
 
-        test(stage.getIntersections(414, 115).length === 1, '18) getIntersections should return one shape');
-        test(stage.getIntersections(414, 115)[0].getId() === 'redCircle', '20) first intersection should be redCircle');
+        test(stage.getAllIntersections(414, 115).length === 1, '18) getAllIntersections should return one shape');
+        test(stage.getAllIntersections(414, 115)[0].getId() === 'redCircle', '20) first intersection should be redCircle');
 
-        test(stage.getIntersections(350, 118).length === 2, '1) getIntersections should return two shapes');
-        test(stage.getIntersections(350, 118)[0].getId() === 'redCircle', '2) first intersection should be redCircle');
-        test(stage.getIntersections(350, 118)[1].getId() === 'greenCircle', '3) second intersection should be greenCircle');
+        test(stage.getAllIntersections(350, 118).length === 2, '1) getAllIntersections should return two shapes');
+        test(stage.getAllIntersections(350, 118)[0].getId() === 'redCircle', '2) first intersection should be redCircle');
+        test(stage.getAllIntersections(350, 118)[1].getId() === 'greenCircle', '3) second intersection should be greenCircle');
 
         // hide green circle.  make sure only red circle is in result set
         greenCircle.hide();
         layer.draw();
 
-        test(stage.getIntersections(350, 118).length === 1, '4) getIntersections should return one shape');
-        test(stage.getIntersections(350, 118)[0].getId() === 'redCircle', '5) first intersection should be redCircle');
+        test(stage.getAllIntersections(350, 118).length === 1, '4) getAllIntersections should return one shape');
+        test(stage.getAllIntersections(350, 118)[0].getId() === 'redCircle', '5) first intersection should be redCircle');
 
         // show green circle again.  make sure both circles are in result set
         greenCircle.show();
         layer.draw();
 
-        test(stage.getIntersections(350, 118).length === 2, '6) getIntersections should return two shapes');
-        test(stage.getIntersections(350, 118)[0].getId() === 'redCircle', '7) first intersection should be redCircle');
-        test(stage.getIntersections(350, 118)[1].getId() === 'greenCircle', '8) second intersection should be greenCircle');
+        test(stage.getAllIntersections(350, 118).length === 2, '6) getAllIntersections should return two shapes');
+        test(stage.getAllIntersections(350, 118)[0].getId() === 'redCircle', '7) first intersection should be redCircle');
+        test(stage.getAllIntersections(350, 118)[1].getId() === 'greenCircle', '8) second intersection should be greenCircle');
 
         // hide red circle.  make sure only green circle is in result set
         redCircle.hide();
         layer.draw();
 
-        test(stage.getIntersections(350, 118).length === 1, '9) getIntersections should return one shape');
-        test(stage.getIntersections(350, 118)[0].getId() === 'greenCircle', '10) first intersection should be greenCircle');
+        test(stage.getAllIntersections(350, 118).length === 1, '9) getAllIntersections should return one shape');
+        test(stage.getAllIntersections(350, 118)[0].getId() === 'greenCircle', '10) first intersection should be greenCircle');
 
         // show red circle again.  make sure both circles are in result set
         redCircle.show();
         layer.draw();
 
-        test(stage.getIntersections(350, 118).length === 2, '11) getIntersections should return two shapes');
-        test(stage.getIntersections(350, 118)[0].getId() === 'redCircle', '12) first intersection should be redCircle');
-        test(stage.getIntersections(350, 118)[1].getId() === 'greenCircle', '13) second intersection should be greenCircle');
+        test(stage.getAllIntersections(350, 118).length === 2, '11) getAllIntersections should return two shapes');
+        test(stage.getAllIntersections(350, 118)[0].getId() === 'redCircle', '12) first intersection should be redCircle');
+        test(stage.getAllIntersections(350, 118)[1].getId() === 'greenCircle', '13) second intersection should be greenCircle');
 
         // test from layer
-        test(layer.getIntersections(350, 118).length === 2, '14) getIntersections should return two shapes');
-        test(layer.getIntersections(350, 118)[0].getId() === 'redCircle', '15) first intersection should be redCircle');
-        test(layer.getIntersections(350, 118)[1].getId() === 'greenCircle', '16) second intersection should be greenCircle');
+        test(layer.getAllIntersections(350, 118).length === 2, '14) getAllIntersections should return two shapes');
+        test(layer.getAllIntersections(350, 118)[0].getId() === 'redCircle', '15) first intersection should be redCircle');
+        test(layer.getAllIntersections(350, 118)[1].getId() === 'greenCircle', '16) second intersection should be greenCircle');
 
     },
     'scale stage after add layer': function(containerId) {
