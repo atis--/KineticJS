@@ -30,20 +30,30 @@
                 p, colorKey, shape;
 
             if(this.isVisible() && this.isListening()) {
-                p = this.hitCanvas.context.getImageData(pos.x | 0, pos.y | 0, 1, 1).data;
-                // this indicates that a hit pixel may have been found
-                if(p[3] === 255) {
-                    colorKey = Kinetic.Util._rgbToHex(p[0], p[1], p[2]);
-                    shape = Kinetic.Global.shapes[HASH + colorKey];
-                    return {
-                        shape: shape,
-                        pixel: p
-                    };
+                // Also look at neighboring pixels to work around the
+                // destructive effects of anti-aliasing within hit-canvas.
+                p = {x: Math.round(pos.x | 0), y: Math.round(pos.y | 0)};
+                p = this.hitCanvas.context.getImageData(p.x - 1, p.y - 1, 3, 3).data;
+
+                for (i = 0; i < 4*9; i+=4) {
+                    // full opacity indicates that a hit pixel may have been found
+                    if (p[i+3] === 255) {
+                        colorKey = Kinetic.Util._rgbToHex(p[i], p[i+1], p[i+2]);
+                        shape = Kinetic.Global.shapes[HASH + colorKey];
+                        if (shape) {
+                            return {
+                                shape: shape,
+                                pixel: [p[i], p[i+1], p[i+2], p[i+3]]
+                            };
+                        }
+                    }
                 }
+
                 // if no shape mapped to that pixel, return pixel array
-                else if(p[0] > 0 || p[1] > 0 || p[2] > 0 || p[3] > 0) {
+                i = 4*4;
+                if (p[i] > 0 || p[i+1] > 0 || p[i+2] > 0 || p[i+3] > 0) {
                     return {
-                        pixel: p
+                        pixel: [p[i], p[i+1], p[i+2], p[i+3]]
                     };
                 }
             }
