@@ -380,6 +380,16 @@
                 if (!shape.getStrokeScaleEnabled()) {
 
                     context.setTransform(1, 0, 0, 1, 0, 0);
+                } else if (shape.attrs.strokeSmartScale) {
+                    // If "smart" stroke scaling is enabled, disable scaling
+                    // whenever containing layer is scaled down to where the
+                    // stroke would almost disappear and draw it at single-unit
+                    // width.
+                    var ls = shape.getLayer().getScale();
+                    if (strokeWidth * ls.x < 1 || strokeWidth * ls.y < 1) {
+                        strokeWidth = 1;
+                        context.setTransform(1, 0, 0, 1, 0, 0);
+                    }
                 }
                 this._applyLineCap(shape);
                 if(dashArray && shape.getDashArrayEnabled()) {
