@@ -1,3 +1,9 @@
+
+function sign(n) {
+    return n?(n<0?-1:1):0;
+}
+var adj_f = 1.2;
+
 (function() {
     Kinetic.SmoothLine = function(config) {
         this.___init(config);
@@ -16,23 +22,31 @@
                 n, point, prev_point, next_point, f, prev_seg, seg,
                 seg_len, prev_seg_len, CSP, CEP, corner_size;
 
-            context.beginPath();
-            context.moveTo(points[0].x, points[0].y);
-
+            // Do nothing if there's only a single point.
             if (length < 2)
                 return;
-            if (length < 3) {
-                context.lineTo(points[length-1].x, points[length-1].y);
-                canvas.stroke(this);
-                return;
-            }
 
+            // First segment.
             prev_point = points[0];
             prev_seg = {
                 x: points[1].x - prev_point.x,
                 y: points[1].y - prev_point.y
             };
             prev_seg_len = Math.sqrt(prev_seg.x*prev_seg.x + prev_seg.y*prev_seg.y);
+
+            // Move to intial point (note the adjustment/hack).
+            context.beginPath();
+            context.moveTo(points[0].x+adj_f*sign(prev_seg.x),
+                           points[0].y+adj_f*sign(prev_seg.y));
+
+            if (length < 3) {
+                // Direct line to final point (+hack).
+                context.lineTo(points[length-1].x-adj_f*sign(prev_seg.x),
+                               points[length-1].y-adj_f*sign(prev_seg.y));
+                canvas.stroke(this);
+                return;
+            }
+
             for (n = 1; n <= length - 2; n++) {
                 point = points[n];
                 next_point = points[n+1];
@@ -68,9 +82,10 @@
                 prev_seg_len = seg_len;
             }
 
-            // Straight line to last point.
+            // Straight line to last point (+hack).
             point = points[length-1];
-            context.lineTo(point.x, point.y);
+            context.lineTo(point.x-adj_f*sign(seg.x),
+                           point.y-adj_f*sign(seg.y));
 
             canvas.stroke(this);
         }
