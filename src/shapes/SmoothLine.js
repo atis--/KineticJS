@@ -59,7 +59,7 @@ var adj_f = 1.2;
                 seg_len = Math.sqrt(seg.x*seg.x + seg.y*seg.y);
 
                 // Corner size.
-                corner_size = Math.min(prev_seg_len*0.2, seg_len*0.2, 8);
+                corner_size = Math.min(8, prev_seg_len*0.5, seg_len*0.5);
 
                 // Curve start point.
                 f = (prev_seg_len - corner_size) / prev_seg_len;
