@@ -207,6 +207,14 @@
         _getTextWidth: function (text) {
             return dummyContext.measureText(text).width;
         },
+        _TDA_break: function (str) {
+             var r = /[\\ -\.,:;\/\[{\(@#+&]/;
+             for (var i = str.length - 1; i >= 0; i--) {
+                  if (r.test(str.charAt(i)))
+                       return i;
+             }
+             return -1;
+        },
          _setTextData: function () {
              var lines = this.getText().split('\n'),
                  fontSize = +this.getFontSize(),
@@ -222,7 +230,8 @@
                  currentHeightPx = 0,
                  wrap = this.getWrap(),
                  shouldWrap = wrap !== NONE,
-                 wrapAtWord = wrap !==  CHAR && shouldWrap;
+                 wrapAtWord = wrap !==  CHAR && shouldWrap,
+                 TDA_quirks = this.attrs.TDA_quirks;
 
              this.textArr = [];
              dummyContext.save();
@@ -263,8 +272,13 @@
                              // a fitting substring was found
                              if (wrapAtWord) {
                                  // try to find a space or dash where wrapping could be done
-                                 var wrapIndex = Math.max(match.lastIndexOf(SPACE),
+                                 var wrapIndex;
+                                 if (!TDA_quirks) {
+                                    wrapIndex = Math.max(match.lastIndexOf(SPACE),
                                                           match.lastIndexOf(DASH)) + 1;
+                                 } else {
+                                    wrapIndex = this._TDA_break(match) + 1;
+                                 }
                                  if (wrapIndex > 0) {
                                      // re-cut the substring found at the space/dash position
                                      low = wrapIndex;
