@@ -752,12 +752,14 @@
          */
         setDepth: function(depth) {
             this.attrs.depth = depth;
-            this.parent.children.sort(function(a, b) {
-                var ad = a.attrs.depth || 0,
-                    bd = b.attrs.depth || 0;
-                return ad < bd ? -1 : (ad == bd ? 0 : 1);
-            });
-            this.parent._setChildrenIndices();
+            if (this.parent) {
+                this.parent.children.sort(function(a, b) {
+                    var ad = a.attrs.depth || 0,
+                        bd = b.attrs.depth || 0;
+                    return ad < bd ? -1 : (ad == bd ? 0 : 1);
+                });
+                this.parent._setChildrenIndices();
+            }
         },
         /**
          * get absolute opacity
