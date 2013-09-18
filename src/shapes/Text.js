@@ -215,23 +215,39 @@
              }
              return -1;
         },
-         _setTextData: function () {
-             var lines = this.getText().split('\n'),
+        _setTextData: function () {
+            // Normal mode.
+            if (!this.attrs.TDA_quirks) {
+                this._do_text(false);
+                return;
+            }
+
+            // TDA quirks mode: reduce font size until text fits vertically into box.
+            var fontSize = +this.getFontSize();
+            for (var i = 0; i < 3; i++) {
+                if (this._do_text(true))
+                    return;
+                this.setFontSize(fontSize -= 1);
+                console.warn("set fs="+this.getFontSize()+" for text='"+this.getText()+"'");
+            }
+            this._do_text(false);
+        },
+        _do_text: function(TDA_quirks) {
+            var lines = this.getText().split('\n'),
                  fontSize = +this.getFontSize(),
                  textWidth = 0,
                  lineHeightPx = this.getLineHeight() * fontSize,
                  width = this.attrs.width,
                  height = this.attrs.height,
                  fixedWidth = width !== AUTO,
-                 fixedHeight = height !== AUTO,
+                 fixedHeight = TDA_quirks || (height !== AUTO),
                  padding = this.getPadding(),
                  maxWidth = width - padding * 2,
                  maxHeightPx = height - padding * 2,
                  currentHeightPx = 0,
                  wrap = this.getWrap(),
                  shouldWrap = wrap !== NONE,
-                 wrapAtWord = wrap !==  CHAR && shouldWrap,
-                 TDA_quirks = this.attrs.TDA_quirks;
+                 wrapAtWord = wrap !==  CHAR && shouldWrap;
 
              this.textArr = [];
              dummyContext.save();
@@ -294,6 +310,10 @@
                                   * stop wrapping if wrapping is disabled or if adding
                                   * one more line would overflow the fixed height
                                   */
+                                 if (TDA_quirks) {
+                                    dummyContext.restore();
+                                    return false;
+                                 }
                                  break;
                              }
                              line = line.slice(low);
@@ -326,6 +346,7 @@
              dummyContext.restore();
              this.textHeight = fontSize;
              this.textWidth = textWidth;
+             return true;
          }
     };
     Kinetic.Util.extend(Kinetic.Text, Kinetic.Shape);
