@@ -460,6 +460,9 @@
             if(stroke || strokeWidth) {
                 this._applyLineCap(shape);
                 context.lineWidth = strokeWidth || 2;
+                var stroke_incr = shape.attrs.increaseHitArea;
+                if (stroke_incr)
+                    context.lineWidth += stroke_incr;
                 context.strokeStyle = shape.colorKey;
                 shape._strokeFuncHit(context);
             }
