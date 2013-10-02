@@ -458,6 +458,13 @@
                 strokeWidth = shape.getStrokeWidth();
 
             if(stroke || strokeWidth) {
+                // Disable stroke scale transform if necessary.
+                var disable_scale = shape.attrs.disableHitStrokeScale;
+                if (disable_scale) {
+                    context.save();
+                    context.setTransform(1, 0, 0, 1, 0, 0);
+                }
+
                 this._applyLineCap(shape);
                 context.lineWidth = strokeWidth || 2;
                 var stroke_incr = shape.attrs.increaseHitArea;
@@ -465,6 +472,9 @@
                     context.lineWidth += stroke_incr;
                 context.strokeStyle = shape.colorKey;
                 shape._strokeFuncHit(context);
+
+                if (disable_scale)
+                    context.restore();
             }
         }
     };
