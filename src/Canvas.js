@@ -459,10 +459,15 @@
 
             if(stroke || strokeWidth) {
                 // Disable stroke scale transform if necessary.
-                var disable_scale = shape.attrs.disableHitStrokeScale;
-                if (disable_scale) {
-                    context.save();
-                    context.setTransform(1, 0, 0, 1, 0, 0);
+                var smart_scale = shape.attrs.hitStrokeSmartScale,
+                    ctx_saved = false;
+                if (smart_scale) {
+                    var ls = shape.getLayer().getScale();
+                    if (ls.x < 1 || ls.y < 1) {
+                        context.save();
+                        context.setTransform(1, 0, 0, 1, 0, 0);
+                        ctx_saved = true;
+                    }
                 }
 
                 this._applyLineCap(shape);
@@ -473,7 +478,7 @@
                 context.strokeStyle = shape.colorKey;
                 shape._strokeFuncHit(context);
 
-                if (disable_scale)
+                if (ctx_saved)
                     context.restore();
             }
         }
