@@ -593,7 +593,7 @@
         _stroke: function(shape) {
             if(shape.hasStroke()) {
                 this._applyLineCap(shape);
-                this.setAttr('lineWidth', shape.strokeWidth());
+                this.setAttr('lineWidth', shape.strokeWidth() + shape.attrs.increaseHitStroke || 0);
                 this.setAttr('strokeStyle', shape.colorKey);
                 shape._strokeFuncHit(this);
             }
