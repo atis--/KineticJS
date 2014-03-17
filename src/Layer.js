@@ -50,51 +50,33 @@
          * @returns {Kinetic.Shape}
          */
         getIntersection: function(pos) {
-            var obj, i, intersectionOffset, shape;
+            var i, intersectionOffset, shape;
 
             if(this.isVisible()) {
                 for (i=0; i<INTERSECTION_OFFSETS_LEN; i++) {
                     intersectionOffset = INTERSECTION_OFFSETS[i];
-                    obj = this._getIntersection({
+                    shape = this._getIntersection({
                         x: pos.x + intersectionOffset.x,
                         y: pos.y + intersectionOffset.y
                     });
-                    shape = obj.shape;
                     if (shape) {
                         return shape;
                     }
-                    else if (!obj.antialiased) {
-                        return null;
-                    }
                 }
             }
-            else {
-                return null;
-            }
+            return null;
         },
         _getIntersection: function(pos) {
             var p = this.hitCanvas.context._context.getImageData(pos.x, pos.y, 1, 1).data,
                 p3 = p[3],
-                colorKey, shape;
+                colorKey;
 
             // fully opaque pixel
             if(p3 === 255) {
                 colorKey = Kinetic.Util._rgbToHex(p[0], p[1], p[2]);
-                shape = Kinetic.shapes[HASH + colorKey];
-                return {
-                    shape: shape
-                };
+                return Kinetic.shapes[HASH + colorKey];
             }
-            // antialiased pixel
-            else if(p3 > 0) {
-                return {
-                    antialiased: true
-                };
-            }
-            // empty pixel
-            else {
-                return {};
-            }
+            return null;    // empty or antialiased pixel
         },
         drawScene: function(can) {
             var layer = this.getLayer(),
